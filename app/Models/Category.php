@@ -2,12 +2,34 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
-    protected $fillable = ['name', 'slug'];
+    use HasFactory;
 
-    public function products(): HasMany { return $this->hasMany(Product::class); }
+    protected $fillable = ['name', 'slug', 'description'];
+
+    public function mangas(): HasMany
+    {
+        return $this->hasMany(Manga::class);
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($category) {
+            if (empty($category->slug)) {
+                $category->slug = Str::slug($category->name);
+            }
+        });
+    }
 }

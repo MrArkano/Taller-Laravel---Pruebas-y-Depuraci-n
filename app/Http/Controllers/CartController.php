@@ -1,11 +1,96 @@
 <?php
+
 namespace App\Http\Controllers;
-use App\Models\Product;
+
+use App\Models\Manga;
+use App\Services\CartService;
 use Illuminate\Http\Request;
+
 class CartController extends Controller
 {
- public function index() { return view('cart.index',['cart'=>session('cart',[])]); }
- public function store(Request $request, Product $product) { $quantity=max(1,(int)$request->input('quantity',1)); $cart=session('cart',[]); $current=$cart[$product->id]['quantity']??0; if(!$product->isAvailable()||$current+$quantity>$product->stock) return back()->with('error','Stock insuficiente.'); $cart[$product->id]=['id'=>$product->id,'name'=>$product->name,'franchise'=>$product->franchise,'image'=>$product->image,'price'=>$product->final_price,'original_price'=>$product->price,'quantity'=>$current+$quantity,'stock'=>$product->stock,'has_discount'=>$product->has_discount]; session(['cart'=>$cart]); return back()->with('success','Producto añadido al carrito.'); }
- public function update(Request $request) { $cart=session('cart',[]); foreach((array)$request->input('quantities',[]) as $id=>$quantity) { if(!isset($cart[$id])) continue; $product=Product::find($id); $quantity=(int)$quantity; if(!$product||$quantity<1||$quantity>$product->stock) return back()->with('error','Cantidad inválida para el stock disponible.'); $cart[$id]['quantity']=$quantity; $cart[$id]['stock']=$product->stock; } session(['cart'=>$cart]); return back()->with('success','Carrito actualizado.'); }
- public function destroy(Product $product) { $cart=session('cart',[]); unset($cart[$product->id]); session(['cart'=>$cart]); return back()->with('success','Producto eliminado del carrito.'); }
+    public function __construct(
+        protected CartService $cartService
+    ) {}
+
+    /**
+     * Vista principal del carrito de compras.
+     */
+    public function index()
+    {
+        $cart = $this->cartService->getItems();
+        $summary = $this->cartService->getSummary();
+
+        return view('cart.index', compact('cart', 'summary'));
+    }
+
+    /**
+     * Añade un manga al carrito.
+     */
+    public function add(Request $request, Manga $manga)
+    {
+        $request->validate([
+            'quantity' => 'nullable|integer|min:1|max:' . max(1, $manga->stock),
+        ]);
+
+        $quantity = (int) $request->input('quantity', 1);
+
+        if (!$manga->is_in_stock) {
+            return back()->with('error', "El manga '{$manga->title}' se encuentra agotado temporalmente.");
+        }
+
+        $this->cartService->add($manga, $quantity);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "¡'{$manga->title}' fue añadido a tu colección!",
+                'cart_count' => $this->cartService->getItemsCount(),
+                'summary' => $this->cartService->getSummary(),
+            ]);
+        }
+
+        return back()->with('success', "¡'{$manga->title}' ha sido añadido al carrito!");
+    }
+
+    /**
+     * Actualiza la cantidad de un producto.
+     */
+    public function update(Request $request, Manga $manga)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:0|max:' . max(1, $manga->stock),
+        ]);
+
+        $this->cartService->update($manga->id, (int) $request->quantity);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'cart_count' => $this->cartService->getItemsCount(),
+                'summary' => $this->cartService->getSummary(),
+            ]);
+        }
+
+        return redirect()->route('cart.index')->with('success', 'Carrito actualizado correctamente.');
+    }
+
+    /**
+     * Elimina un ítem del carrito.
+     */
+    public function remove(Manga $manga)
+    {
+        $this->cartService->remove($manga->id);
+
+        return redirect()->route('cart.index')->with('success', "Se quitó '{$manga->title}' de tu selección.");
+    }
+
+    /**
+     * Vacía el carrito por completo.
+     */
+    public function clear()
+    {
+        $this->cartService->clear();
+
+        return redirect()->route('cart.index')->with('info', 'El carrito ha sido vaciado.');
+    }
 }
