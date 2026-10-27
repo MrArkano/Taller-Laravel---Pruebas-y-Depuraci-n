@@ -135,13 +135,3 @@ Las pruebas usan **SQLite en memoria** (`DB_CONNECTION=sqlite`, `DB_DATABASE=:me
 
 Última ejecución real de `php artisan test`: 32 pruebas pasaron (201 aserciones). Detalle en `DOCUMENTACION.md`.
 
-## Repositorio Git público
-
-```bash
-git add .
-git commit -m "MediCitas: citas médicas con API, pruebas y README"
-git remote add origin <URL-DE-SU-REPOSITORIO>
-git push -u origin main
-```
-
-`.env` ya está en `.gitignore`; no suba credenciales, tokens ni claves. Si alguna credencial real (p. ej. de un servicio de correo) estuvo alguna vez en `.env` o en el historial, **rótela** antes de publicar.
