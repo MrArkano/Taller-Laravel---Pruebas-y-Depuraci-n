@@ -1,1 +1,0 @@
-@extends('layouts.app') @section('title','Nuevo producto | NerdVault') @section('content')<x-page-header eyebrow="Inventario" title="Nuevo producto" description="Añade una pieza a la bóveda." /><form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data" class="nv-form">@csrf @include('products._form',['buttonText'=>'Crear producto'])</form>@endsection

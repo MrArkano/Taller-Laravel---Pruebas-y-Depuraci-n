@@ -8,12 +8,12 @@ use Tests\TestCase;
 class ExampleTest extends TestCase
 {
     /**
-     * A basic test example.
+     * La raíz de la aplicación redirige al listado de citas (MediCitas).
      */
-    public function test_the_application_returns_a_successful_response(): void
+    public function test_la_raiz_redirige_al_listado_de_citas(): void
     {
         $response = $this->get('/');
 
-        $response->assertStatus(200);
+        $response->assertRedirect('/citas');
     }
 }

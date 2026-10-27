@@ -2,22 +2,23 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\CursoController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Api\CitaController as ApiCitaController;
+use App\Http\Controllers\Api\TokenController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\PostController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::get('/posts', [PostController::class, 'index']);
 
-// Rutas Públicas
-Route::post('/login', [AuthController::class, 'login']);
-Route::get('/cursos', [CursoController::class, 'index']);
-
-// Rutas Protegidas por Autenticación
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/perfil', [UserController::class, 'perfil']);
-    Route::put('/cursos/{curso}', [CursoController::class, 'update']); 
-    Route::get('/admin/finanzas', [DashboardController::class, 'reporteFinanciero']); 
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store']);
+});
+
+// MediCitas
+Route::post('/login', [TokenController::class, 'store']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/citas', [ApiCitaController::class, 'index']);
+    Route::post('/citas', [ApiCitaController::class, 'store']);
+    Route::get('/citas/{cita}', [ApiCitaController::class, 'show']);
+    Route::patch('/citas/{cita}', [ApiCitaController::class, 'update']);
 });

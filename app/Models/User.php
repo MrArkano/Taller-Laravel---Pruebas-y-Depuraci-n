@@ -4,19 +4,41 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'role'])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
+
+    public const ROL_PACIENTE = 'paciente';
+    public const ROL_MEDICO = 'medico';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'rol',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -31,9 +53,28 @@ class User extends Authenticatable
         ];
     }
 
-    public function cursos() 
+    public function posts()
     {
-        return $this->hasMany(Curso::class);
+        return $this->hasMany(Post::class);
+    }
+
+    public function esPaciente(): bool
+    {
+        return $this->rol === self::ROL_PACIENTE;
+    }
+
+    public function esMedico(): bool
+    {
+        return $this->rol === self::ROL_MEDICO;
+    }
+
+    public function citasComoPaciente(): HasMany
+    {
+        return $this->hasMany(Cita::class, 'patient_id');
+    }
+
+    public function citasComoMedico(): HasMany
+    {
+        return $this->hasMany(Cita::class, 'doctor_id');
     }
 }
-

@@ -1,1 +1,0 @@
-@php($hasDiscount = $product->stock > 20) @php($finalPrice = $hasDiscount ? $product->price * .90 : $product->price)<div class="price-block">@if($hasDiscount)<del>${{ number_format($product->price, 2) }}</del><span class="discount-badge">-10%</span>@endif <strong>${{ number_format($finalPrice, 2) }}</strong></div>

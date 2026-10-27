@@ -2,30 +2,42 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    public function login(Request $request) {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-        $user = User::where('email', $request->email)->first();
+    public function showLogin(): View
+    {
+        return view('auth.login');
+    }
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Usuario no encontrado o contraseña incorrecta'
-                ], 401);
+    public function login(Request $request): RedirectResponse
+    {
+        $credenciales = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        if (! Auth::attempt($credenciales, $request->boolean('remember'))) {
+            return back()
+                ->withErrors(['email' => 'Las credenciales no son correctas.'])
+                ->onlyInput('email');
         }
 
-        // El método createToken() está disponible gracias a HasApiTokens en el Modelo User
-        $token = $user->createToken('token-edulearn')->plainTextToken;
-        
-        return response()->json([
-            'token' => $token
-        ]);
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('citas.index'));
+    }
+
+    public function logout(Request $request): RedirectResponse
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
     }
 }

@@ -1,1 +1,0 @@
-@props(['eyebrow'=>'NerdVault','title'=>'','description'=>''])<div class="page-header d-flex justify-content-between align-items-end flex-wrap gap-3 mb-4"><div><span class="eyebrow">{{ $eyebrow }}</span><h1>{{ $title }}</h1>@if($description)<p>{{ $description }}</p>@endif</div><div>{{ $slot }}</div></div>
