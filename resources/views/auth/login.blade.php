@@ -5,6 +5,7 @@
 @section('content')
     <section class="card" style="max-width:440px;margin:40px auto;">
         <h1>Iniciar sesión</h1>
+        <p class="login-intro">Bienvenido a Medícate o Muérete. Ingrese para gestionar sus citas.</p>
         <form method="POST" action="{{ route('login.attempt') }}" id="form-login">
             @csrf
             <label for="email">Correo electrónico</label>

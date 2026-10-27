@@ -5,7 +5,10 @@
 @section('content')
     <section class="card">
         <div class="head">
-            <h1>Agendar nueva cita</h1>
+            <div>
+                <h1>Agendar nueva cita</h1>
+                <p style="color: var(--muted); margin: 4px 0 0; font-size: 0.88rem;">Complete el formulario de Medícate o Muérete</p>
+            </div>
             <a href="{{ route('citas.index') }}" class="btn btn-ghost">← Volver</a>
         </div>
 

@@ -5,7 +5,10 @@
 @section('content')
     <section class="card">
         <div class="head">
-            <h1>Citas médicas</h1>
+            <div>
+                <h1>Citas médicas</h1>
+                <p style="color: var(--muted); margin: 4px 0 0; font-size: 0.88rem;">Panel de consultas de Medícate o Muérete</p>
+            </div>
             @can('create', App\Models\Cita::class)
                 <a href="{{ route('citas.create') }}" class="btn" id="btn-nueva-cita">+ Nueva cita</a>
             @endcan
